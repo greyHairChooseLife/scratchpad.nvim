@@ -85,7 +85,7 @@ return {
   },
   config = function()
     local scratchpad = require("scratchpad")
-    scratchpad.setup({ settings = { sync_on_ui_close = true } })
+    scratchpad:setup({ settings = { sync_on_ui_close = true } })
   end,
   keys = {
     {
