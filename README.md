@@ -1,4 +1,4 @@
-# Scratchpad.nvim
+# scratchpad.nvim
 
 `scratchpad.nvim` is a customizable and feature-rich Neovim plugin for managing and synchronizing scratchpad data. It provides a flexible configuration system, intuitive UI, and reliable data storage to streamline your development workflow.
 
