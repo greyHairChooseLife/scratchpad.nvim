@@ -1,0 +1,2 @@
+# scratchpad
+Scratchpad for Neovim.
