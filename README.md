@@ -14,7 +14,6 @@ https://github.com/user-attachments/assets/876d3a0a-d444-405f-b099-57d24aaf9a82
 - [License](#license)
 - [Acknowledgments](#acknowledgments)
 
-
 <!-- /TOC -->
 
 ## Features
@@ -33,7 +32,7 @@ use {
   "athar-qadri/scratchpad.nvim",
   requires = { "nvim-lua/plenary.nvim" },
   config = function()
-    require("scratchpad").setup()
+    require("scratchpad"):setup()
   end,
 }
 ```
@@ -45,7 +44,7 @@ use {
   "athar-qadri/scratchpad.nvim",
   dependencies = { "nvim-lua/plenary.nvim" },
   config = function()
-    require("scratchpad").setup()
+    require("scratchpad"):setup()
   end,
 }
 ```
@@ -60,10 +59,10 @@ Initialize `scratchpad.nvim` with default settings or provide a custom configura
 local scratchpad = require("scratchpad")
 
 -- Default setup
-scratchpad.setup()
+scratchpad:setup()
 --or
 -- Custom setup
-scratchpad.setup({
+scratchpad:setup({
   settings = {
     sync_on_ui_close = true,
   },
