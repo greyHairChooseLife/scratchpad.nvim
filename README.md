@@ -1,2 +1,2 @@
-# scratchpad
+# scratchpad.nvim
 Scratchpad for Neovim.
