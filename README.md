@@ -91,13 +91,13 @@ return {
     {
       "<Leader>es",
       function()
-        vim.cmd("Lazy reload scratchpad.nvim")
         local scratchpad = require("scratchpad")
         scratchpad.ui:new_scratchpad()
       end,
-      desc = "show project root",
+      desc = "show scratch pad",
     },
   },
+}
 ```
 ### Example Workflow
 
