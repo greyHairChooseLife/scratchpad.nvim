@@ -38,10 +38,9 @@ end
 local the_scratchpad = Scratchpad:new()
 
 ---@param self Scratchpad
----@param partial_config table|nil
+---@param partial_config ScratchpadPartialConfig?
 ---@return Scratchpad
 function Scratchpad.setup(self, partial_config)
-	partial_config = partial_config or {}
 	if self ~= the_scratchpad then
 		---@diagnostic disable-next-line: cast-local-type
 		partial_config = self
