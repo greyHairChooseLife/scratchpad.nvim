@@ -1,5 +1,4 @@
 ---@alias ScratchpadUIData string
----
 ---@class ScratchpadUI
 ---@field win_id number
 ---@field bufnr number

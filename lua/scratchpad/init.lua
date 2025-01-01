@@ -48,6 +48,19 @@ function Scratchpad.setup(self, partial_config)
 	end
 	self.config = Config.merge_config(partial_config, self.config)
 	self.ui:configure(self.data, self.config.settings)
+
+	vim.api.nvim_create_user_command("Scratch", function(_)
+		if self.ui.bufnr ~= nil then
+			return
+		end
+		self.ui:new_scratchpad()
+	end, {
+		bang = true,
+		desc = 'require"scratch".ui:new_scratchpad(false)',
+		nargs = 0,
+		bar = true,
+	})
+
 	return self
 end
 
