@@ -190,16 +190,23 @@ function ScratchpadUI:sync()
 end
 
 function ScratchpadUI:new_scratchpad()
-	if self.data.has_error == false then
-		local workspace = create_window(self.data)
-
-		self.bufnr = workspace.body.buf
-		self.win_id = workspace.body.win
-
-		vim.api.nvim_set_option_value("number", true, {
-			win = self.win_id,
-		})
+	if self.data.has_error == true then
+		return
 	end
+
+	if self.win_id ~= nil then
+		self:close_menu()
+		return
+	end
+
+	local workspace = create_window(self.data)
+
+	self.bufnr = workspace.body.buf
+	self.win_id = workspace.body.win
+
+	vim.api.nvim_set_option_value("number", true, {
+		win = self.win_id,
+	})
 end
 
 ---@param settings ScratchpadSettings

@@ -50,7 +50,7 @@ function Scratchpad.setup(self, partial_config)
 	self.ui:configure(self.data, self.config.settings)
 
 	vim.api.nvim_create_user_command("Scratch", function(_)
-		if self.ui.bufnr ~= nil then
+		if self.ui.win_id ~= nil then
 			return
 		end
 		self.ui:new_scratchpad()
