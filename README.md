@@ -2,8 +2,8 @@
 
 `scratchpad.nvim` is a customizable and feature-rich Neovim plugin for managing and synchronizing scratchpad data. It provides a flexible configuration system, intuitive UI, and reliable data storage to streamline your development workflow.
 
-
 https://github.com/user-attachments/assets/876d3a0a-d444-405f-b099-57d24aaf9a82
+
 <!-- TOC -->
 
 - [Features](#features)
@@ -67,10 +67,13 @@ scratchpad:setup({
     sync_on_ui_close = true,
   },
   default = {
+  --here you specify project root identifiers (Cargo.toml, package.json, blah-blah-blah)
+  --or let your man do the job
     root_patterns = { ".git", "package.json", "README.md" },
   },
 })
 ```
+
 ### Keymap Configuration
 
 You can set up custom key mappings for enhanced functionality. Below is an example keymap configuration:
@@ -89,10 +92,13 @@ You can set up custom key mappings for enhanced functionality. Below is an examp
   },
 }
 ```
+
 ### Easy Setup Using Lazy
+
 ```lua
 return {
   "athar-qadri/scratchpad.nvim",
+  event = "VeryLazy",
   opts = {},
   dependencies = {
     "nvim-lua/plenary.nvim",
@@ -113,6 +119,9 @@ return {
   },
 }
 ```
+
+######**Run the command :Scratch to open Scratchpad for your current project. Use Vim motions to read/write/delete/fly within the scratchpad.**
+
 ### Example Workflow
 
 1. **Initialize a Scratchpad**:
@@ -130,14 +139,11 @@ Below is a detailed breakdown of the configuration options available:
 
 ### `ScratchpadConfig`
 
-| Key             | Type              | Default Value        | Description                                     |
-|------------------|-------------------|----------------------|-------------------------------------------------|
-| `sync_on_ui_close`| `boolean`         | `false`              | Save data using vim commands :w / :wq                |
-| `sync_on_ui_close` | `boolean`     | `true`              | Sync data when the UI is closed.               |
-
+| Key                | Description                                                                                   |
+| ------------------ | --------------------------------------------------------------------------------------------- |
+| `sync_on_ui_close` | any time the ui menu is closed then the state of the scratchpad will be sync'd back to the fs |
 
 Refer to `config.lua` for more detailed options and comments.
-
 
 ## Contributing
 
