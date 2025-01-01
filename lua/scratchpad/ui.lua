@@ -186,7 +186,7 @@ function ScratchpadUI:sync()
 	local bufnr = self.bufnr
 	local lines = vim.api.nvim_buf_get_lines(bufnr, 0, -1, true)
 	--writing buffer content to scratch pad
-	self.data.sync_scratch(self.data, table.concat(lines, "\n"))
+	self.data:sync_scratch(table.concat(lines, "\n"))
 end
 
 function ScratchpadUI:new_scratchpad()

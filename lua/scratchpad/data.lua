@@ -38,7 +38,7 @@ local function write_data(data, config)
 	Path:new(fullpath(config)):write(data, "w")
 end
 
---- @alias ScratchpadRawData {[string]: {[string]: string[]}}
+--- @alias ScratchpadRawData string
 
 local M = {}
 
@@ -91,7 +91,6 @@ end
 ---@return ScratchpadData
 function Data:new(config)
 	local ok, data = pcall(read_data, config)
-
 	return setmetatable({
 		_data = data,
 		has_error = not ok,
@@ -101,6 +100,7 @@ end
 
 ---@param data ScratchpadUIData
 function Data:sync_scratch(data)
+	self._data = data
 	pcall(write_data, data, self.config)
 end
 

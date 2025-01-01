@@ -56,7 +56,7 @@ function Scratchpad.setup(self, partial_config)
 		self.ui:new_scratchpad()
 	end, {
 		bang = true,
-		desc = 'require"scratch".ui:new_scratchpad(false)',
+		desc = 'require"scratch".ui:new_scratchpad()',
 		nargs = 0,
 		bar = true,
 	})
