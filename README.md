@@ -119,6 +119,11 @@ return {
         scratchpad.ui:new_scratchpad()
       end,
       desc = "show scratch pad",
+    
+      vim.keymap.set({ "n", "v" }, "<leader>ps", function()
+        local scratchpad = require("scratchpad")
+        scratchpad.ui:sync()
+      end, { desc = "Push selection / current line to scratchpad" }),
     },
   },
 }
@@ -126,13 +131,15 @@ return {
 
 **Run the command `:Scratch` to open Scratchpad for your current project. Use Vim motions to read/write/delete/fly within the scratchpad.**
 
+**You can also directly push the data (`text selection` in visual mode or `current line` in normal mode) to your scratchpad using above configuration.**
+
 ### Example Workflow
 
 1. **Initialize a Scratchpad**:
    The plugin detects your project root and initializes a scratchpad associated with the directory. If no project root is found, your current working directory will be consider for a unique scratchpad.
 
 2. **Synchronize Data**:
-   Changes to the scratchpad are saved automatically based on your configuration.
+   Changes to the scratchpad are saved automatically based on your configuration. Your cursor position in scratchpad is saved so that you don't have to.
 
 3. **Customize Behavior**:
    Modify setting `sync_on_ui_close` to control how data is managed.
