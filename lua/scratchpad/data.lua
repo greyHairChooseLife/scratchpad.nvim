@@ -1,4 +1,5 @@
 local Path = require("plenary.path")
+local log = require("scratchpad.log")
 
 local data_path = string.format("%s/scratchpad", vim.fn.stdpath("data"))
 local ensured_data_path = false
@@ -30,21 +31,21 @@ end
 
 local function fullpath(config)
 	local h = hash(filename(config))
-	return string.format("%s/%s", data_path, h)
+	return string.format("%s/%s.json", data_path, h)
 	--return string.format("%s/%s.json", data_path, h)
 end
 
-local function write_data(data, config)
-	Path:new(fullpath(config)):write(data, "w")
+local function write_data(cur_pos, data, config)
+	Path:new(fullpath(config)):write(vim.json.encode({ cur_pos = cur_pos, body = data }), "w")
 end
 
---- @alias ScratchpadRawData string
+--- @alias ScratchpadRawData { cur_pos: { r: integer, c: integer }, body: string }
 
 local M = {}
 
 function M.__dangerously_clear_data(config)
 	local data = ""
-	write_data(data, config)
+	write_data({ r = 1, c = 0 }, data, config)
 end
 
 function M.info()
@@ -54,7 +55,7 @@ function M.info()
 end
 
 --- @class ScratchpadData
---- @field _data ScratchpadRawData
+--- @field scratch ScratchpadRawData
 --- @field has_error boolean
 --- @field config ScratchpadConfig
 local Data = {}
@@ -63,7 +64,7 @@ Data.__index = Data
 
 ---@param config ScratchpadConfig
 ---@param provided_path string?
----return ScratchpadRawData
+---@return ScratchpadRawData
 local function read_data(config, provided_path)
 	ensure_data_path()
 
@@ -72,19 +73,17 @@ local function read_data(config, provided_path)
 	local exists = path:exists()
 
 	if not exists then
-		write_data("", config)
+		write_data({ r = 1, c = 0 }, "", config)
 	end
 
 	local out_data = path:read()
 
 	if not out_data or out_data == "" then
-		write_data("", config)
-		out_data = ""
+		write_data({ r = 1, c = 0 }, "", config)
+		out_data = { { r = 1, c = 0 }, body = "" }
 	end
-
-	---local data = vim.json.decode(out_data)
-	---return data
-	return out_data
+	local data = vim.json.decode(out_data)
+	return data
 end
 
 ---@param config ScratchpadConfig
@@ -92,16 +91,18 @@ end
 function Data:new(config)
 	local ok, data = pcall(read_data, config)
 	return setmetatable({
-		_data = data,
+		scratch = data,
 		has_error = not ok,
 		config = config,
 	}, self)
 end
 
 ---@param data ScratchpadUIData
-function Data:sync_scratch(data)
-	self._data = data
-	pcall(write_data, data, self.config)
+---@param cur_pos any
+function Data:sync_scratch(cur_pos, data)
+	self.scratch.body = data
+	self.scratch.cur_pos = cur_pos
+	pcall(write_data, cur_pos, data, self.config)
 end
 
 M.Data = Data

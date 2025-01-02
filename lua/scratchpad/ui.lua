@@ -1,3 +1,6 @@
+--writing buffer content to scratch pad
+local log = require("scratchpad.log")
+
 ---@alias ScratchpadUIData string
 ---@class ScratchpadUI
 ---@field win_id number
@@ -90,7 +93,9 @@ local create_window = function(data)
 	--state.floats.background = create_scratchpad_window(windows.background, nil)
 	state.floats.body = create_scratchpad_window(windows.body, true)
 
-	vim.api.nvim_buf_set_lines(state.floats.body.buf, 0, -1, false, vim.split(data._data, "\n"))
+	vim.api.nvim_buf_set_lines(state.floats.body.buf, 0, -1, false, vim.split(data.body, "\n"))
+	local pos = { data.cur_pos.r, data.cur_pos.c }
+	vim.api.nvim_win_set_cursor(state.floats.body.win, pos)
 
 	scratchpad_keymap("n", "q", function()
 		vim.schedule(function()
@@ -183,10 +188,44 @@ function ScratchpadUI:close_menu()
 end
 
 function ScratchpadUI:sync()
+	if self.bufnr == nil then
+		--if self bufnr is nil, we can consider that another buffer is loaded
+		local mode = vim.api.nvim_get_mode()["mode"]
+		if mode == "n" then
+			--get current line
+			local current_line = vim.api.nvim_get_current_line()
+			if #current_line ~= 0 then
+				local _data = require("scratchpad").ui.data.scratch
+				local _sc, _cur_pos = _data.body, _data.cur_pos
+				if #_sc ~= 0 then
+					_sc = _sc .. "\n"
+				end
+				local new_data = _sc .. current_line
+				local _ = require("scratchpad").ui.data:sync_scratch(_cur_pos, new_data)
+			end
+			return
+		end
+
+		if mode == "v" then
+			local _, ls, cs = unpack(vim.fn.getpos("v"))
+			local _, le, ce = unpack(vim.fn.getpos("."))
+			local selected_text = table.concat(vim.api.nvim_buf_get_text(0, ls - 1, cs - 1, le - 1, ce, {}), "\n")
+
+			if #selected_text ~= 0 then
+				local _data = require("scratchpad").ui.data.scratch
+				local _sc, _cur_pos = _data.body, _data.cur_pos
+				local new_data = _sc .. "\n" .. selected_text
+				local _ = require("scratchpad").ui.data:sync_scratch(_cur_pos, new_data)
+			end
+		end
+		return
+	end
+
 	local bufnr = self.bufnr
 	local lines = vim.api.nvim_buf_get_lines(bufnr, 0, -1, true)
+	local row, col = unpack(vim.api.nvim_win_get_cursor(0))
 	--writing buffer content to scratch pad
-	self.data:sync_scratch(table.concat(lines, "\n"))
+	self.data:sync_scratch({ r = row, c = col }, table.concat(lines, "\n"))
 end
 
 function ScratchpadUI:new_scratchpad()
@@ -199,7 +238,7 @@ function ScratchpadUI:new_scratchpad()
 		return
 	end
 
-	local workspace = create_window(self.data)
+	local workspace = create_window(self.data.scratch)
 
 	self.bufnr = workspace.body.buf
 	self.win_id = workspace.body.win
