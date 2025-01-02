@@ -44,6 +44,7 @@ use {
 ```lua
 {
   "athar-qadri/scratchpad.nvim",
+  event = "VeryLazy",
   dependencies = { "nvim-lua/plenary.nvim" },
   config = function()
     require("scratchpad"):setup()
