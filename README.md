@@ -122,7 +122,7 @@ return {
 }
 ```
 
-######**Run the command :Scratch to open Scratchpad for your current project. Use Vim motions to read/write/delete/fly within the scratchpad.**
+**Run the command :Scratch to open Scratchpad for your current project. Use Vim motions to read/write/delete/fly within the scratchpad.**
 
 ### Example Workflow
 
