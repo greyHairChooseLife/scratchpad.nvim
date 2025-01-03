@@ -172,4 +172,4 @@ This project is licensed under the MIT License. See the `LICENSE` file for more 
 ## Acknowledgments
 
 - Built with ❤️ using [Lua](https://www.lua.org/) and [Neovim](https://neovim.io/).
-- Inspired by modern Neovim plugin design patterns.
+- Inspired by [Harpoon](https://github.com/ThePrimeagen/harpoon/tree/harpoon2).
