@@ -155,7 +155,8 @@ Below is a detailed breakdown of the configuration options available:
 
 | Key                | Description                                                                                   |
 | ------------------ | --------------------------------------------------------------------------------------------- |
-| `sync_on_ui_close` | any time the ui menu is closed then the state of the scratchpad will be sync'd back to the fs |
+| `sync_on_ui_close` | any time the ui menu is closed then the state of the scratchpad will be sync'd back to the fs. |
+| `root_patterns` | Specify project root identifiers (e.g., .git, package.json).|
 
 Refer to `config.lua` for more detailed options and comments.
 
