@@ -3,7 +3,7 @@
 `scratchpad.nvim` is a customizable and feature-rich Neovim plugin for managing and synchronizing scratchpad data. It provides a flexible configuration system, intuitive UI, and reliable data storage to streamline your development workflow.
 
 **What makes `scratchpad.nvim` stand out?**
-- **Floating Windows**: Scratchpads open in distraction-free floating windows, eliminating the need for additional splits or buffers.
+- **Floating Windows**: Scratchpads open in floating windows, eliminating the need for additional splits or buffers. And you can set your own title.
 - **Push Data Seamlessly**: Push text from the current buffer (selected text or current line) directly to the scratchpad without opening it.
 - **Automatic Filename Management**: Scratchpad filenames are handled internally, so you can focus on more important things.
 
@@ -71,6 +71,7 @@ scratchpad:setup()
 scratchpad:setup({
   settings = {
     sync_on_ui_close = true,
+    title = "My Scratch Pad"
   },
   default = {
   --here you specify project root identifiers (Cargo.toml, package.json, blah-blah-blah)
