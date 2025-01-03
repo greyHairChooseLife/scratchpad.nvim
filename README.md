@@ -2,13 +2,17 @@
 
 `scratchpad.nvim` is a customizable and feature-rich Neovim plugin for managing and synchronizing scratchpad data. It provides a flexible configuration system, intuitive UI, and reliable data storage to streamline your development workflow.
 
+**What makes `scratchpad.nvim` stand out?**
+- **Floating Windows**: Scratchpads open in distraction-free floating windows, eliminating the need for additional splits or buffers.
+- **Push Data Seamlessly**: Push text from the current buffer (selected text or current line) directly to the scratchpad without opening it.
+- **Automatic Filename Management**: Scratchpad filenames are handled internally, so you can focus on more important things.
+
 <!--https://github.com/user-attachments/assets/876d3a0a-d444-405f-b099-57d24aaf9a82-->
 <!--https://github.com/user-attachments/assets/21e7a8cc-5298-469f-b542-cbac090e4dd8-->
 <!--https://github.com/user-attachments/assets/2d40274a-5545-4421-871d-0e660978a06b-->
 https://github.com/user-attachments/assets/ed20ef40-8820-45c3-b06e-dc65f118b443
 
 <!-- TOC -->
-
 - [Features](#features)
 - [Installation](#installation)
 - [Usage](#usage)
@@ -16,7 +20,6 @@ https://github.com/user-attachments/assets/ed20ef40-8820-45c3-b06e-dc65f118b443
 - [Contributing](#contributing)
 - [License](#license)
 - [Acknowledgments](#acknowledgments)
-
 <!-- /TOC -->
 
 ## Features
@@ -24,7 +27,6 @@ https://github.com/user-attachments/assets/ed20ef40-8820-45c3-b06e-dc65f118b443
 - **Customizable Configurations**: Easily extend and merge default configurations to suit your needs.
 - **Data Synchronization**: Automatically save and sync scratchpad data with robust error handling.
 - **Project Root Detection**: Supports a wide range of project identifiers for seamless integration.
-- **Plenary Integration**: Leverages Plenary for file and path operations.
 
 ## Installation
 
@@ -119,12 +121,19 @@ return {
         scratchpad.ui:new_scratchpad()
       end,
       desc = "show scratch pad",
+    
+      vim.keymap.set({ "n", "v" }, "<leader>ps", function()
+        local scratchpad = require("scratchpad")
+        scratchpad.ui:sync()
+      end, { desc = "Push selection / current line to scratchpad" }),
     },
   },
 }
 ```
 
-**Run the command `:Scratch` to open Scratchpad for your current project. Use Vim motions to read/write/delete/fly within the scratchpad.**
+**Run the command `:Scratch` to open Scratchpad for your current project.**
+
+**You can also directly push the data (`text selection` in visual mode or `current line` in normal mode) to your scratchpad using above configuration.**
 
 ### Example Workflow
 
@@ -132,7 +141,7 @@ return {
    The plugin detects your project root and initializes a scratchpad associated with the directory. If no project root is found, your current working directory will be consider for a unique scratchpad.
 
 2. **Synchronize Data**:
-   Changes to the scratchpad are saved automatically based on your configuration.
+   Changes to the scratchpad are saved automatically based on your configuration. Your cursor position in scratchpad is saved even after the closing the ui.
 
 3. **Customize Behavior**:
    Modify setting `sync_on_ui_close` to control how data is managed.
