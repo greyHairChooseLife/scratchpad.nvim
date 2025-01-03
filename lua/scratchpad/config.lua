@@ -1,5 +1,7 @@
+local log = require("scratchpad.log")
 ---@class ScratchpadPartialConfigItem
 ---@field select_with_nil? boolean defaults to false
+---@field title? string defaults to "Scratch Pad"
 ---@field get_root_dir? fun(): string
 
 ---@class ScratchpadSettings
@@ -36,6 +38,7 @@ function M.get_default_config()
 		settings = {
 			save_on_toggle = false,
 			sync_on_ui_close = false,
+			title = "Scratch Pad",
 		},
 
 		default = {

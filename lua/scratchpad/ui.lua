@@ -1,4 +1,4 @@
---writing buffer content to scratch pad
+---@diagnostic disable-next-line: unused-local
 local log = require("scratchpad.log")
 
 ---@alias ScratchpadUIData string
@@ -39,7 +39,7 @@ local function create_scratchpad_window(config, enter)
 	return { buf = buf, win = win }
 end
 
-local create_scratchpad_configurations = function()
+local create_scratchpad_configurations = function(filename, config)
 	local width = math.floor(vim.o.columns * 0.80)
 	local height = math.floor(vim.o.lines * 0.60)
 
@@ -63,10 +63,12 @@ local create_scratchpad_configurations = function()
 			style = "minimal",
 			--border = { " ", " ", " ", " ", " ", " ", " ", " " },
 			border = "rounded",
-			title = { { "Scratch Pad" } },
+			title = { { config.settings.title } },
 			title_pos = "center",
 			col = col,
 			row = row,
+			footer = filename,
+			footer_pos = "center",
 		},
 	}
 end
@@ -87,8 +89,10 @@ local scratchpad_keymap = function(mode, key, callback)
 	})
 end
 
-local create_window = function(data)
-	local windows = create_scratchpad_configurations()
+local create_window = function(filename, data)
+	local config = data.config
+	data = data.scratch
+	local windows = create_scratchpad_configurations(filename, config)
 
 	--state.floats.background = create_scratchpad_window(windows.background, nil)
 	state.floats.body = create_scratchpad_window(windows.body, true)
@@ -214,8 +218,12 @@ function ScratchpadUI:sync()
 			if #selected_text ~= 0 then
 				local _data = require("scratchpad").ui.data.scratch
 				local _sc, _cur_pos = _data.body, _data.cur_pos
-				local new_data = _sc .. "\n" .. selected_text
+				if #_sc ~= 0 then
+					_sc = _sc .. "\n"
+				end
+				local new_data = _sc .. selected_text
 				local _ = require("scratchpad").ui.data:sync_scratch(_cur_pos, new_data)
+				vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes("<Esc>", true, false, true), "n", true)
 			end
 		end
 		return
@@ -238,7 +246,9 @@ function ScratchpadUI:new_scratchpad()
 		return
 	end
 
-	local workspace = create_window(self.data.scratch)
+	local filename = vim.api.nvim_buf_get_name(0)
+
+	local workspace = create_window(filename, self.data)
 
 	self.bufnr = workspace.body.buf
 	self.win_id = workspace.body.win
