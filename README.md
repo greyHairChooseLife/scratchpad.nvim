@@ -29,18 +29,8 @@ https://github.com/user-attachments/assets/ed20ef40-8820-45c3-b06e-dc65f118b443
 - **Project Root Detection**: Supports a wide range of project identifiers for seamless integration.
 
 ## Installation
-
-### Using [packer.nvim](https://github.com/wbthomason/packer.nvim)
-
-```lua
-use {
-  "athar-qadri/scratchpad.nvim",
-  requires = { "nvim-lua/plenary.nvim" },
-  config = function()
-    require("scratchpad"):setup()
-  end,
-}
-```
+* neovim 0.8.0+ required
+* install using your favorite plugin manager (i am using `lazy` in this case)
 
 ### Using [lazy.nvim](https://github.com/folke/lazy.nvim)
 
@@ -48,7 +38,18 @@ use {
 {
   "athar-qadri/scratchpad.nvim",
   event = "VeryLazy",
-  dependencies = { "nvim-lua/plenary.nvim" },
+  dependencies = { "nvim-lua/plenary.nvim" }, -- don't forget to add this one if you don't have it yet!
+  config = function()
+    require("scratchpad"):setup()
+  end,
+}
+```
+### Using [packer.nvim](https://github.com/wbthomason/packer.nvim)
+
+```lua
+use {
+  "athar-qadri/scratchpad.nvim",
+  requires = { "nvim-lua/plenary.nvim" },
   config = function()
     require("scratchpad"):setup()
   end,
