@@ -136,7 +136,7 @@ return {
 
 **Run the command `:Scratch` to open Scratchpad for your current project.**
 
-**You can also directly push the data - `text selection` (visual mode) or `current line` (normal mode) by pressing `<leader>ps` to your scratchpad using above configuration.**
+**You can also directly push the data - `text selection` (visual mode) or `current line` (normal mode) to your scratchpad by pressing `<leader>ps` using above configuration.**
 
 ### Example Workflow
 
