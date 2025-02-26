@@ -1,4 +1,9 @@
 local log = require("scratchpad.log")
+
+local M = {}
+local DEFAULT_LIST = "__scratchpad_files"
+M.DEFAULT_LIST = DEFAULT_LIST
+
 ---@class ScratchpadPartialConfigItem
 ---@field select_with_nil? boolean defaults to false
 ---@field title? string defaults to "Scratch Pad"
@@ -23,16 +28,13 @@ local log = require("scratchpad.log")
 ---@field default? ScratchpadPartialConfigItem
 ---@field settings? ScratchpadPartialSettings
 ---@field [string] ScratchpadPartialConfigItem
-local M = {}
 
-local DEFAULT_LIST = "__scratchpad_files"
-
-M.DEFAULT_LIST = DEFAULT_LIST
-
+---@return ScratchpadPartialConfigItem
 function M.get_config(config, name)
 	return vim.tbl_extend("force", {}, config.default, config[name] or {})
 end
 
+---@return ScratchpadConfig
 function M.get_default_config()
 	return {
 		settings = {
@@ -165,6 +167,7 @@ function M.merge_config(partial_config, latest_config)
 	return config
 end
 
+---@param settings ScratchpadPartialSettings
 function M.create_config(settings)
 	local config = M.get_default_config()
 	for k, v in ipairs(settings) do

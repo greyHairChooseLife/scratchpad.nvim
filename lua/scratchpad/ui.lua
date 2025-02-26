@@ -27,8 +27,6 @@ local function create_scratchpad_window(config, enter)
 	local buf = vim.api.nvim_create_buf(false, true) -- No file, scratch buffer
 	local win = vim.api.nvim_open_win(buf, enter or false, config)
 
-	vim.api.nvim_win_set_option(win, "wrap", true)
-
 	local _ = vim.api.nvim_set_option_value("winhl", "Normal:MyHighlight", {})
 
 	if vim.api.nvim_buf_get_name(buf) == "" then
@@ -38,6 +36,29 @@ local function create_scratchpad_window(config, enter)
 	vim.api.nvim_set_option_value("buftype", "acwrite", { buf = buf })
 	return { buf = buf, win = win }
 end
+
+local restore = {
+	cmdheight = {
+		original = vim.o.cmdheight,
+		scratchpad = 1,
+	},
+	guicursor = {
+		original = vim.o.guicursor,
+		scratchpad = "n:NormalFloat",
+	},
+	wrap = {
+		original = vim.o.wrap,
+		scratchpad = true,
+	},
+	breakindent = {
+		original = vim.o.breakindent,
+		scratchpad = true,
+	},
+	breakindentopt = {
+		original = vim.o.breakindentopt,
+		scratchpad = "list:-1",
+	},
+}
 
 local create_scratchpad_configurations = function(filename, config)
 	local width = math.floor(vim.o.columns * 0.80)
@@ -100,6 +121,10 @@ local create_window = function(filename, data)
 	vim.api.nvim_buf_set_lines(state.floats.body.buf, 0, -1, false, vim.split(data.body, "\n"))
 	local pos = { data.cur_pos.r, data.cur_pos.c }
 	vim.api.nvim_win_set_cursor(state.floats.body.win, pos)
+
+	for option, temp_config in pairs(restore) do
+		vim.opt[option] = temp_config.scratchpad
+	end
 
 	scratchpad_keymap("n", "q", function()
 		vim.schedule(function()
@@ -177,15 +202,9 @@ function ScratchpadUI:close_menu()
 	self.buf_data = nil
 	self.win_id = nil
 	self.bufnr = nil
-
 	self.closing = false
-	local restore = {
-		cmdheight = {
-			original = vim.o.cmdheight,
-			scratchpad = 1,
-		},
-	}
 
+	--restoring original configuration
 	for option, config in pairs(restore) do
 		vim.opt[option] = config.original
 	end
