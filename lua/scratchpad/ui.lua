@@ -1,5 +1,6 @@
 ---@diagnostic disable-next-line: unused-local
 local log = require("scratchpad.log")
+local default_ui_config = require("scratchpad.config.ui")
 
 ---@alias ScratchpadUIData string
 ---@class ScratchpadUI
@@ -37,59 +38,90 @@ local function create_scratchpad_window(config, enter)
 	return { buf = buf, win = win }
 end
 
-local restore = {
-	cmdheight = {
-		original = vim.o.cmdheight,
-		scratchpad = 1,
-	},
-	guicursor = {
-		original = vim.o.guicursor,
-		scratchpad = "n:NormalFloat",
-	},
-	wrap = {
-		original = vim.o.wrap,
-		scratchpad = true,
-	},
-	breakindent = {
-		original = vim.o.breakindent,
-		scratchpad = true,
-	},
-	breakindentopt = {
-		original = vim.o.breakindentopt,
-		scratchpad = "list:-1",
-	},
-}
+-- Store restore settings globally so they can be accessed when closing the menu
+local restore_settings = {}
+
+local function create_restore_settings(win_options)
+	local restore = {
+		cmdheight = {
+			original = vim.o.cmdheight,
+			scratchpad = 1,
+		},
+		guicursor = {
+			original = vim.o.guicursor,
+			scratchpad = "n:NormalFloat",
+		},
+	}
+
+	-- Add window options from config
+	if win_options.wrap ~= nil then
+		restore.wrap = {
+			original = vim.o.wrap,
+			scratchpad = win_options.wrap,
+		}
+	end
+
+	if win_options.breakindent ~= nil then
+		restore.breakindent = {
+			original = vim.o.breakindent,
+			scratchpad = win_options.breakindent,
+		}
+	end
+
+	if win_options.breakindentopt ~= nil then
+		restore.breakindentopt = {
+			original = vim.o.breakindentopt,
+			scratchpad = win_options.breakindentopt,
+		}
+	end
+
+	-- Store the restore settings globally
+	restore_settings = restore
+
+	return restore
+end
 
 local create_scratchpad_configurations = function(filename, config)
-	local width = math.floor(vim.o.columns * 0.80)
-	local height = math.floor(vim.o.lines * 0.60)
+	local ui_config = config.ui or default_ui_config
 
-	local col = math.floor((vim.o.columns - width) / 2)
-	local row = math.floor((vim.o.lines - height) / 2)
+	-- Calculate dimensions based on config
+	local width = math.floor(vim.o.columns * ui_config.window.width)
+	local height = math.floor(vim.o.lines * ui_config.window.height)
+
+	-- Calculate position
+	local col_ratio = ui_config.window.col or 0.5
+	local row_ratio = ui_config.window.row or 0.5
+	local col = math.floor((vim.o.columns - width) * col_ratio)
+	local row = math.floor((vim.o.lines - height) * row_ratio)
+
+	-- Get title and footer settings
+	local title_text = ui_config.border.title.text or config.settings.title
+	local title_pos = ui_config.border.title.position or "center"
+	local footer_text = ui_config.border.footer.text or filename
+	local footer_pos = ui_config.border.footer.position or "center"
 
 	return {
 		background = {
-			relative = "editor",
+			relative = ui_config.window.relative or "editor",
 			width = width + 2,
 			height = height + 2,
 			style = "minimal",
 			col = col,
 			row = row,
-			zindex = 1,
+			zindex = ui_config.window.zindex or 1,
 		},
 		body = {
-			relative = "editor",
+			relative = ui_config.window.relative or "editor",
 			width = width,
 			height = height,
 			style = "minimal",
-			--border = { " ", " ", " ", " ", " ", " ", " ", " " },
-			border = "rounded",
-			title = { { config.settings.title } },
-			title_pos = "center",
+			border = ui_config.border.style or "rounded",
+			title = { { title_text } },
+			title_pos = title_pos,
 			col = col,
 			row = row,
-			footer = filename,
-			footer_pos = "center",
+			footer = footer_text,
+			footer_pos = footer_pos,
 		},
 	}
 end
@@ -115,6 +147,9 @@ local create_window = function(filename, data)
 	data = data.scratch
 	local windows = create_scratchpad_configurations(filename, config)
 
+	-- Get UI config
+	local ui_config = config.ui or default_ui_config
+
 	--state.floats.background = create_scratchpad_window(windows.background, nil)
 	state.floats.body = create_scratchpad_window(windows.body, true)
 
@@ -122,21 +157,47 @@ local create_window = function(filename, data)
 	local pos = { data.cur_pos.r, data.cur_pos.c }
 	vim.api.nvim_win_set_cursor(state.floats.body.win, pos)
 
+	-- Create restore settings from config
+	local restore = create_restore_settings(ui_config.win_options or {})
+
 	for option, temp_config in pairs(restore) do
 		vim.opt[option] = temp_config.scratchpad
 	end
 
-	scratchpad_keymap("n", "q", function()
-		vim.schedule(function()
-			require("scratchpad").ui:close_menu()
-		end)
-	end)
+	-- Apply window options
+	if ui_config.win_options then
+		for option, value in pairs(ui_config.win_options) do
+			if option == "winhl" then
+				vim.api.nvim_set_option_value(option, value, { win = state.floats.body.win })
+			elseif option ~= "wrap" and option ~= "breakindent" and option ~= "breakindentopt" then
+				-- Skip options that are handled by restore
+				vim.api.nvim_set_option_value(option, value, { win = state.floats.body.win })
+			end
+		end
+	end
 
-	scratchpad_keymap("n", "<Esc>", function()
-		vim.schedule(function()
-			require("scratchpad").ui:close_menu()
+	-- Setup keymaps from config
+	local keymaps = ui_config.keymaps or { close = { "q", "<Esc>" } }
+
+	if keymaps.close then
+		for _, key in ipairs(keymaps.close) do
+			scratchpad_keymap("n", key, function()
+				vim.schedule(function()
+					require("scratchpad").ui:close_menu()
+				end)
+			end)
+		end
+	end
+
+	-- Add write and quit keymap if configured
+	if keymaps.write_quit then
+		scratchpad_keymap("n", keymaps.write_quit, function()
+			vim.schedule(function()
+				require("scratchpad").ui:sync()
+				require("scratchpad").ui:close_menu()
+			end)
 		end)
-	end)
+	end
 
 	vim.api.nvim_create_autocmd("BufWriteCmd", {
 		buffer = state.floats.body.buf,
@@ -168,7 +229,8 @@ local create_window = function(filename, data)
 				return
 			end
 
-			local updated = create_scratchpad_configurations()
+			local filename = vim.api.nvim_buf_get_name(0)
+			local updated = create_scratchpad_configurations(filename, require("scratchpad").ui.data)
 			foreach_float(function(name, _)
 				vim.api.nvim_win_set_config(state.floats[name].win, updated[name])
 			end)
@@ -205,7 +267,7 @@ function ScratchpadUI:close_menu()
 	self.closing = false
 
 	--restoring original configuration
-	for option, config in pairs(restore) do
+	for option, config in pairs(restore_settings) do
 		vim.opt[option] = config.original
 	end
 end
@@ -272,9 +334,7 @@ function ScratchpadUI:new_scratchpad()
 	self.bufnr = workspace.body.buf
 	self.win_id = workspace.body.win
 
-	vim.api.nvim_set_option_value("number", true, {
-		win = self.win_id,
-	})
+	-- Number option is now handled by the ui config
 end
 
 ---@param settings ScratchpadSettings
